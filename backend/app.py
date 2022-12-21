@@ -119,94 +119,22 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 UPLOAD_FOLDER = '/static'  # NOTE: Change this to /uploads in production
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-#@app.route have to be above if __name__ == '__main__':
+
 @app.route('/status', methods=['GET'])
 def the_status():
     return jsonify('alive!')
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # enable CORS
-# CORS(app, resources={r'/*': {'origins': '*'}})
-
-
-
-###my testing code
-# instantiate the app
-#app = Flask(__name__)
-#app.config.from_object(__name__)
-
-# enable CORS
-#CORS(app, resources={r'/*': {'origins': '*'}})
-
-
-
-
-#if __name__ == '__main__':
-#    app.run()
-###end my testing code
-
-
-
-
-
-
-# # instantiate the app
-# #app = Flask(__name__)
-# #app.secret_key = "super secret key"  # NOTE: INSECURE AND FOR DEBUGGING PURPOSES
-# #app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# #CORS(app, resources={r'/*': {'origins': '*'}})  # enable CORS
-# # cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-# ##app = Flask(__name__)
-# ##app.config['CORS_HEADERS'] = 'Content-Type'
-# ##app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-# ##cors = CORS(app, resources={r"/*": {"origins": "*"}})
-# ##UPLOAD_FOLDER = '/static'  # NOTE: Change this to /uploads in production
-# ##app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-
 # MongoDB
-client = MongoClient(os.environ.get("mongocredential"))
-# client = MongoClient() # For offline testing.
+#client = MongoClient(os.environ.get("mongocredential"))
+client = MongoClient() # For offline testing.
 db = client.test
 visualizations = db.visualizations
 plugins = db.plugins
 
-# # configuration
-# DEBUG = True
-
-
-# # instantiate the app
-# app = Flask(__name__)
-# app.config.from_object(__name__)
-
-# # enable CORS
-# CORS(app, resources={r'/*': {'origins': '*'}})
-
-# #if __name__ == '__main__':
-# #    app.run()
-
-# if __name__ == '__main__':
-#  app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 
 
 def allowed_file(filename, extension_whitelist):
@@ -362,7 +290,7 @@ def add_plugin():
     source, extension = upload_file(request, ALLOWED_EXTENSIONS_ICON, metadata)
     plugin_name = secure_filename(source.filename)
     source.save(os.path.join(
-        "/Users/titusebbecke/Documents/Work/Helmholtz/2020/Experiments/2003_Hiri_VueBootstrap/hzi_vis_03/public/src/assets", plugin_name))
+        "/Users/", plugin_name))
     metadata['filename'] = plugin_name
     db_plugin_entry_id = db.plugins.insert_one(metadata).inserted_id
     if metadata['db_entry_id'] == '':
@@ -482,4 +410,4 @@ def df_to_parquet(df):
     # df = pd.read_parquet(BytesIO(test))
     return Binary(output.getvalue())
 
-client.close()
+#client.close() #not needed with latest version of pymongo - if kept, throws an error
