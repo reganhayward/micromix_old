@@ -92,6 +92,8 @@
                 target="select_plugin_parent"
                 title="5. Visualize your data"
               >Click on one of the plugins (e.g. Clustergrammer, Plotly) above to generate a plot.</b-popover>
+              
+            <!-- This is where we structure and display the plugins that we have loaded either from the mongoDB or from the local plugins.json into the "config.plugins" variable. -->
               <plugins
                 @click.native="select_plugin(plugin)"
                 :active_plugin="active_plugin_id"
@@ -100,7 +102,7 @@
                 :title="plugin.name"
                 :desc="plugin.desc"
                 :image_url="plugin.image_url"
-                :id="plugin._id.$oid"
+                :id="plugin._id"
               />
               <!-- <plugins
                 v-on:plugin_clicked="show_modal('modal_add_plugin')"
@@ -161,19 +163,20 @@
 </template>
 
 <script>
-import addDataForm from "./components/addDataForm.vue";
-import visualization from "./components/visualization";
-import plugins from "./components/plugins";
-import add_plugin from "./components/add_plugin";
-import addDataButton from "./components/addDataButton";
-import search_query from "./components/search_query";
 import axios from "axios";
-import toolbar from "./components/toolbar";
+import organisms from "./assets/json/organisms.json";
+import addDataButton from "./components/addDataButton";
+import addDataForm from "./components/addDataForm.vue";
+import add_plugin from "./components/add_plugin";
 import dataframe from "./components/dataframe";
-import loading from "./components/loading";
 import error_alert from "./components/error_alert";
+import loading from "./components/loading";
 import organism_selection from "./components/organism_selection";
-import organisms from "./assets/json/organisms.json"
+import plugins from "./components/plugins";
+import search_query from "./components/search_query";
+import toolbar from "./components/toolbar";
+import visualization from "./components/visualization";
+import pluginsConfig from "../../plugins.json"
 export default {
   name: "App",
   components: {
@@ -187,13 +190,13 @@ export default {
     dataframe,
     loading,
     error_alert,
-    organism_selection
+    organism_selection,
   },
   data() {
     return {
       // backend_url: 'https://hiri-webtool-backend-v011-44nub6ij6q-ez.a.run.app',
       // backend_url: 'http://dataframe-playground-backend.test.fedcloud.eu',
-      backend_url: 'http://localhost:5000',
+      backend_url: 'http://127.0.0.1:5000',
       organisms,
       loading: {
         state: true,
@@ -210,6 +213,7 @@ export default {
       error: null,
       filtered: false,
       initializing: true,
+      pluginsConfig: {}
     };
   },
   created() {
@@ -249,8 +253,8 @@ export default {
     select_plugin(plugin) {
       if (this.config.active_matrices.length > 0) {
         this.active_vis_link = "";
-        if (plugin._id.$oid != this.active_plugin_id) {
-          this.active_plugin_id = plugin._id.$oid;
+        if (plugin._id != this.active_plugin_id) {
+          this.active_plugin_id = plugin._id;
           let vis_exists = false;
           for (let i in this.config.vis_links) {
             if (this.config.vis_links[i].plugin_id == this.active_plugin_id) {
@@ -324,7 +328,8 @@ export default {
           if (res.data.error_type) {
             this.error_occured(res.data);
           } else {
-            this.config = res.data.db_entry;
+            // This is the session config which determines every data point in the whole session. We merge the session loaded from the DB via the backend and merge it with the local plugins file.
+            this.config = {...res.data.db_entry, ...pluginsConfig};
             this.parse_dataframe_json();
             this.active_plugin_id = this.config.active_plugin_id
             this.active_vis_link = this.get_active_vis_link(this.active_plugin_id) // PERFORMANCE: Maybe check for "", undefined, or null of active_plugin_id
@@ -347,10 +352,10 @@ export default {
         this.config.filtered_dataframe = JSON.parse(this.config.filtered_dataframe)
       }
     },
-    get_plugins(res) {
-      this.hide_modal("modal_add_plugin");
-      this.plugins = res.data;
-    },
+    // get_plugins(res) {
+    //   this.hide_modal("modal_add_plugin");
+    //   this.plugins = res.data;
+    // },
     hide_modal(modal_id) {
       this.$bvModal.hide(modal_id);
     },
