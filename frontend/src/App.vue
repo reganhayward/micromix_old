@@ -92,6 +92,8 @@
                 target="select_plugin_parent"
                 title="5. Visualize your data"
               >Click on one of the plugins (e.g. Clustergrammer, Plotly) above to generate a plot.</b-popover>
+              
+            <!-- This is where we structure and display the plugins that we have loaded either from the mongoDB or from the local plugins.json into the "config.plugins" variable. -->
               <plugins
                 @click.native="select_plugin(plugin)"
                 :active_plugin="active_plugin_id"
@@ -161,19 +163,19 @@
 </template>
 
 <script>
-import addDataForm from "./components/addDataForm.vue";
-import visualization from "./components/visualization";
-import plugins from "./components/plugins";
-import add_plugin from "./components/add_plugin";
-import addDataButton from "./components/addDataButton";
-import search_query from "./components/search_query";
 import axios from "axios";
-import toolbar from "./components/toolbar";
+import organisms from "./assets/json/organisms.json";
+import addDataButton from "./components/addDataButton";
+import addDataForm from "./components/addDataForm.vue";
+import add_plugin from "./components/add_plugin";
 import dataframe from "./components/dataframe";
-import loading from "./components/loading";
 import error_alert from "./components/error_alert";
+import loading from "./components/loading";
 import organism_selection from "./components/organism_selection";
-import organisms from "./assets/json/organisms.json"
+import plugins from "./components/plugins";
+import search_query from "./components/search_query";
+import toolbar from "./components/toolbar";
+import visualization from "./components/visualization";
 export default {
   name: "App",
   components: {
@@ -193,7 +195,7 @@ export default {
     return {
       // backend_url: 'https://hiri-webtool-backend-v011-44nub6ij6q-ez.a.run.app',
       // backend_url: 'http://dataframe-playground-backend.test.fedcloud.eu',
-      backend_url: 'http://localhost:5000',
+      backend_url: 'http://127.0.0.1:5000',
       organisms,
       loading: {
         state: true,

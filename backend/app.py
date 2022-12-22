@@ -325,8 +325,8 @@ def respond_config():
         db_entry['_id'] = str(db_entry['_id'])
         
         # Here we load all plugins found in the dedicated plugins db. Going forward, we'll load plugins from a local json file, making this key unnecessary.
-        db_entry['plugins'] = [plugin for plugin in db.plugins.find(
-            {'_id': {'$in': db_entry['plugins_id']}})]
+        # db_entry['plugins'] = [plugin for plugin in db.plugins.find(
+        #     {'_id': {'$in': db_entry['plugins_id']}})]
         
         
         if type(db_entry['transformed_dataframe']) == bytes: # The mockup db_entry stores the empty transformed_dataframe as a list, so don't convert that one.
@@ -347,8 +347,8 @@ def respond_config():
         import copy
         db_entry = copy.deepcopy(DB_ENTRY_MOCKUP)
         # print(db_entry)
-        db_entry['plugins'] = [plugin for plugin in db.plugins.find(
-            {'_id': {'$in': db_entry['plugins_id']}})]
+        # db_entry['plugins'] = [plugin for plugin in db.plugins.find(
+        #     {'_id': {'$in': db_entry['plugins_id']}})]
         return Response(dumps({'db_entry': db_entry}, allow_nan=True), mimetype="application/json")
 
 def respond_error(error_type, error_message):
