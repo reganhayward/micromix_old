@@ -102,7 +102,7 @@
                 :title="plugin.name"
                 :desc="plugin.desc"
                 :image_url="plugin.image_url"
-                :id="plugin._id.$oid"
+                :id="plugin._id"
               />
               <!-- <plugins
                 v-on:plugin_clicked="show_modal('modal_add_plugin')"
@@ -176,6 +176,7 @@ import plugins from "./components/plugins";
 import search_query from "./components/search_query";
 import toolbar from "./components/toolbar";
 import visualization from "./components/visualization";
+import pluginsConfig from "../../plugins.json"
 export default {
   name: "App",
   components: {
@@ -189,7 +190,7 @@ export default {
     dataframe,
     loading,
     error_alert,
-    organism_selection
+    organism_selection,
   },
   data() {
     return {
@@ -212,6 +213,7 @@ export default {
       error: null,
       filtered: false,
       initializing: true,
+      pluginsConfig: {}
     };
   },
   created() {
@@ -251,8 +253,8 @@ export default {
     select_plugin(plugin) {
       if (this.config.active_matrices.length > 0) {
         this.active_vis_link = "";
-        if (plugin._id.$oid != this.active_plugin_id) {
-          this.active_plugin_id = plugin._id.$oid;
+        if (plugin._id != this.active_plugin_id) {
+          this.active_plugin_id = plugin._id;
           let vis_exists = false;
           for (let i in this.config.vis_links) {
             if (this.config.vis_links[i].plugin_id == this.active_plugin_id) {
@@ -326,7 +328,8 @@ export default {
           if (res.data.error_type) {
             this.error_occured(res.data);
           } else {
-            this.config = res.data.db_entry;
+            // This is the session config which determines every data point in the whole session. We merge the session loaded from the DB via the backend and merge it with the local plugins file.
+            this.config = {...res.data.db_entry, ...pluginsConfig};
             this.parse_dataframe_json();
             this.active_plugin_id = this.config.active_plugin_id
             this.active_vis_link = this.get_active_vis_link(this.active_plugin_id) // PERFORMANCE: Maybe check for "", undefined, or null of active_plugin_id
@@ -349,10 +352,10 @@ export default {
         this.config.filtered_dataframe = JSON.parse(this.config.filtered_dataframe)
       }
     },
-    get_plugins(res) {
-      this.hide_modal("modal_add_plugin");
-      this.plugins = res.data;
-    },
+    // get_plugins(res) {
+    //   this.hide_modal("modal_add_plugin");
+    //   this.plugins = res.data;
+    // },
     hide_modal(modal_id) {
       this.$bvModal.hide(modal_id);
     },

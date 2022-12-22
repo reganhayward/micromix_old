@@ -1,0 +1,16 @@
+{
+    "plugins": [
+        {
+            "_id": "str some_random_hex_number_1234567890",
+            "desc": "str This is a description of the plugin",
+            "image_url": "str URL to an icon, preferrably SVG",
+            "name": "str Title name of the plugin"
+        },
+        {
+            "_id": "khds8fohoduskfi7syf73",
+            "desc": "A fantastic heatmap that allows you to do cool stuff",
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/SVG_Logo.svg",
+            "name": "Clustergrammer"
+        }
+    ]
+}
