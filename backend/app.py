@@ -1,21 +1,20 @@
 # To-Do: Configure CORS to only allow specific requests. Very important!
 
-import os
-from flask import Flask, flash, request, redirect, url_for, jsonify, send_from_directory, Response, send_file
-from werkzeug.utils import secure_filename
-from flask_cors import CORS
-import uuid
 import json
+import os
+import uuid
+from io import BytesIO
+
+import numpy as np
+import pandas as pd
 import process_file
 import visualize
+from bson.json_util import ObjectId, dumps, loads
+from flask import (Flask, Response, flash, jsonify, redirect, request,
+                   send_file, send_from_directory, url_for)
+from flask_cors import CORS
 from pymongo import MongoClient
-from bson.json_util import loads, dumps, ObjectId
-from io import BytesIO
-import pandas as pd
-import numpy as np
-
-
-
+from werkzeug.utils import secure_filename
 
 # variables
 ALLOWED_EXTENSIONS_MATRIX = {'txt', 'xlsx', 'csv', 'tsv'}
@@ -284,8 +283,8 @@ def make_vis_link():
 
 @app.route('/plugins', methods=['POST'])
 def add_plugin():
-    from pymongo import MongoClient
     from bson.json_util import ObjectId
+    from pymongo import MongoClient
     metadata = json.loads(request.form['form'])
     source, extension = upload_file(request, ALLOWED_EXTENSIONS_ICON, metadata)
     plugin_name = secure_filename(source.filename)
@@ -324,8 +323,12 @@ def respond_config():
         db_entry = db.visualizations.find_one({"_id": db_entry_id})
         # print(len(bson.BSON.encode(db_entry)))
         db_entry['_id'] = str(db_entry['_id'])
+        
+        # Here we load all plugins found in the dedicated plugins db. Going forward, we'll load plugins from a local json file, making this key unnecessary.
         db_entry['plugins'] = [plugin for plugin in db.plugins.find(
             {'_id': {'$in': db_entry['plugins_id']}})]
+        
+        
         if type(db_entry['transformed_dataframe']) == bytes: # The mockup db_entry stores the empty transformed_dataframe as a list, so don't convert that one.
             # PERFORMANCE: We have to replace NaN cells with None for JSON.
             db_entry['transformed_dataframe'] = pd.read_parquet(BytesIO(db_entry['transformed_dataframe'])).to_json(orient='records')
